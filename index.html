@@ -3,26 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jam Waktu Elegan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+  <title>Chronos Cyber - Jam Elegan</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #050507;
-      --fg: #f2f0eb;
-      --muted: #8c8882;
-      --accent: #ff4d4d; /* Merah lebih cerah */
-      --accent-glow: rgba(255, 77, 77, 0.4);
-      --accent2: #ff9f43;
-      --card-bg: rgba(255, 255, 255, 0.03);
-      --border: rgba(255, 255, 255, 0.08);
+      /* Variabel Tema (Default: Cyber Blue) */
+      --bg-color: #050505;
+      --primary: #00f3ff; /* Cyan Neon */
+      --secondary: #bd00ff; /* Purple Neon */
+      --text-main: #ffffff;
+      --text-muted: #8b9bb4;
+      --glass-bg: rgba(20, 20, 25, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      
+      /* Transisi halus untuk pergantian tema */
+      --transition-speed: 0.5s;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       min-height: 100vh;
-      background: var(--bg);
-      color: var(--fg);
+      background-color: var(--bg-color);
+      color: var(--text-main);
       font-family: 'Space Grotesk', sans-serif;
       display: flex;
       flex-direction: column;
@@ -30,486 +34,515 @@
       justify-content: center;
       overflow: hidden;
       position: relative;
+      transition: background-color var(--transition-speed);
     }
 
-    /* --- Latar Belakang Atmosferik --- */
-    .ambient-bg {
+    /* --- Canvas Background (Partikel) --- */
+    #bgCanvas {
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      overflow: hidden;
     }
 
-    .glow-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.25;
-      animation: floatOrb 20s ease-in-out infinite alternate;
-    }
-
-    .orb-1 {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, var(--accent), transparent 70%);
-      top: -20%; left: -15%;
-      animation-duration: 25s;
-    }
-
-    .orb-2 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, #4a2e85, transparent 70%);
-      bottom: -10%; right: -10%;
-      animation-duration: 30s;
-      animation-delay: -5s;
-    }
-
-    @keyframes floatOrb {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(40px, -30px) scale(1.1); }
-    }
-
-    /* Overlay Noise halus */
-    .noise-overlay {
+    /* --- Overlay Vignette --- */
+    .vignette {
       position: fixed;
       inset: 0;
+      background: radial-gradient(circle at center, transparent 0%, var(--bg-color) 120%);
       z-index: 1;
-      opacity: 0.04;
       pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
-    /* --- Kontainer Utama --- */
+    /* --- Container Utama --- */
     main {
       position: relative;
       z-index: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2.5rem;
+      gap: 2rem;
       width: 100%;
-      max-width: 600px;
+      max-width: 650px; /* Diperlebar sedikit untuk menampung 4 kolom */
       padding: 20px;
     }
 
-    /* --- Jam Analog (Canvas) --- */
-    .clock-container {
+    /* --- Jam Analog Container --- */
+    .clock-wrapper {
       position: relative;
       width: 320px;
       height: 320px;
       display: flex;
       justify-content: center;
       align-items: center;
+      filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.5));
     }
 
-    /* Cincin luar dekoratif */
-    .clock-deco-ring {
+    /* Cincin luar yang berputar pelan */
+    .outer-ring {
       position: absolute;
-      inset: -20px;
+      inset: -15px;
       border-radius: 50%;
-      border: 1px solid rgba(255, 77, 77, 0.1);
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-      pointer-events: none;
+      border: 1px solid var(--glass-border);
+      border-top-color: var(--primary);
+      border-bottom-color: var(--primary);
+      animation: spin 10s linear infinite;
+      opacity: 0.6;
+      transition: border-color var(--transition-speed);
     }
 
-    canvas {
-      width: 320px;
-      height: 320px;
-      filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+    .outer-ring::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
       border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
     }
 
-    /* --- Tampilan Digital --- */
-    .digital-clock {
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Canvas Jam */
+    #clockCanvas {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 70%);
+      backdrop-filter: blur(5px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    /* --- Digital Display --- */
+    .digital-container {
       text-align: center;
       position: relative;
+      background: var(--glass-bg);
+      padding: 15px 30px;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .time-wrapper {
+    .digital-container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .time-display {
       display: flex;
       align-items: baseline;
       justify-content: center;
-      font-family: 'Outfit', sans-serif;
-      line-height: 1;
-      /* Efek teks glow halus */
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .time-main {
-      font-size: clamp(3.5rem, 12vw, 6rem);
-      font-weight: 300; /* Lebih tipis dan elegan */
-      color: var(--fg);
-      font-variant-numeric: tabular-nums;
+      font-size: clamp(3rem, 10vw, 4.5rem);
+      font-weight: 700;
       letter-spacing: -2px;
+      text-shadow: 0 0 20px rgba(0,0,0,0.5);
+      background: linear-gradient(to bottom, #fff, #aaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .time-seconds {
       font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-left: 8px;
-      width: 2ch;
+      color: var(--primary);
+      font-weight: 700;
+      width: 2.5ch;
       text-align: left;
-      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 10px var(--primary);
+      transition: color var(--transition-speed), text-shadow var(--transition-speed);
     }
 
-    /* --- Progress Bar Detik --- */
-    .progress-container {
-      width: 100%;
-      height: 2px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      width: 0%;
-      box-shadow: 0 0 10px var(--accent-glow);
-      border-radius: 2px;
-    }
-
-    /* --- Kartu Info Tanggal --- */
+    /* --- Info Cards Grid (UPDATED: 4 Columns) --- */
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(4, 1fr); /* Diubah dari 3 menjadi 4 */
+      gap: 10px; /* Gap dikurangi sedikit agar muat */
       width: 100%;
-      margin-top: 10px;
     }
 
     .info-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 12px 5px; /* Padding vertikal disesuaikan */
       border-radius: 12px;
-      padding: 12px 10px;
       text-align: center;
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s ease, border-color 0.3s;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      cursor: default;
     }
 
     .info-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 77, 77, 0.3);
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--card-hover);
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s ease, border-color var(--transition-speed);
     }
 
-    .info-label {
-      font-size: 0.65rem;
+    .label {
+      font-size: 0.65rem; /* Sedikit lebih kecil */
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--muted);
+      color: var(--text-muted);
       margin-bottom: 4px;
     }
 
-    .info-value {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--fg);
+    .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem; /* Disesuaikan agar muat 4 digit tahun */
+      font-weight: 700;
+      color: var(--text-main);
     }
 
-    .info-value.highlight {
-      color: var(--accent);
+    /* --- Controls / Theme Switcher --- */
+    .controls {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+      background: rgba(0,0,0,0.3);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(5px);
     }
 
-    /* --- Responsif Mobile --- */
+    .theme-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      position: relative;
+    }
+
+    .theme-btn:hover { transform: scale(1.2); }
+    .theme-btn.active { border-color: #fff; transform: scale(1.1); }
+
+    /* Theme Colors for Buttons */
+    .btn-blue { background: #00f3ff; box-shadow: 0 0 10px #00f3ff; }
+    .btn-red { background: #ff2a6d; box-shadow: 0 0 10px #ff2a6d; }
+    .btn-green { background: #05ffa1; box-shadow: 0 0 10px #05ffa1; }
+
+    /* --- Footer --- */
+    footer {
+      margin-top: 30px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    /* --- Responsive --- */
     @media (max-width: 480px) {
-      .clock-container {
-        width: 280px;
-        height: 280px;
-      }
-      canvas {
-        width: 280px;
-        height: 280px;
-      }
-      .time-main { font-size: 3.5rem; }
-      .info-grid { gap: 8px; }
-      .info-card { padding: 10px 6px; }
-      .info-value { font-size: 0.95rem; }
-    }
-
-    /* --- Prefers Reduced Motion --- */
-    @media (prefers-reduced-motion: reduce) {
-      .glow-orb { animation: none; }
-      .info-card { transition: none; }
+      .clock-wrapper { width: 280px; height: 280px; }
+      #clockCanvas { width: 260px; height: 260px; }
+      .time-main { font-size: 2.5rem; }
+      
+      /* Di mobile, kartu bisa lebih rapat */
+      .info-grid { gap: 6px; }
+      .info-card { padding: 10px 4px; }
+      .label { font-size: 0.6rem; letter-spacing: 0.05em; }
+      .value { font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Latar Belakang -->
-  <div class="ambient-bg">
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-  </div>
-  <div class="noise-overlay"></div>
+  <!-- Background Canvas untuk Efek Partikel -->
+  <canvas id="bgCanvas"></canvas>
+  
+  <!-- Vignette Overlay -->
+  <div class="vignette"></div>
 
   <main>
-    <!-- Jam Analog -->
-    <div class="clock-container">
-      <div class="clock-deco-ring"></div>
-      <canvas id="clockCanvas" width="640" height="640" aria-label="Jam Analog"></canvas>
+    <!-- Bagian Jam Analog -->
+    <div class="clock-wrapper">
+      <div class="outer-ring"></div>
+      <canvas id="clockCanvas" width="600" height="600" aria-label="Jam Analog"></canvas>
     </div>
 
-    <!-- Jam Digital -->
-    <div class="digital-clock">
-      <div class="time-wrapper">
+    <!-- Bagian Jam Digital -->
+    <div class="digital-container">
+      <div class="time-display">
         <span class="time-main" id="digitalTime">00:00</span>
         <span class="time-seconds" id="digitalSec">00</span>
       </div>
     </div>
 
-    <!-- Progress Bar -->
-    <div class="progress-container">
-      <div class="progress-bar" id="secProgress"></div>
-    </div>
-
-    <!-- Informasi Tanggal -->
+    <!-- Kartu Informasi Tanggal (UPDATED: Ada Tahun) -->
     <div class="info-grid">
       <div class="info-card">
-        <div class="info-label">Hari</div>
-        <div class="info-value" id="dayName">—</div>
+        <div class="label">Hari</div>
+        <div class="value" id="dayName">—</div>
       </div>
       <div class="info-card">
-        <div class="info-label">Tanggal</div>
-        <div class="info-value" id="dateNum">—</div>
+        <div class="label">Tanggal</div>
+        <div class="value" id="dateNum">—</div>
       </div>
       <div class="info-card">
-        <div class="info-label">Bulan</div>
-        <div class="info-value highlight" id="monthName">—</div>
+        <div class="label">Bulan</div>
+        <div class="value" id="monthName">—</div>
+      </div>
+      <!-- Kartu Baru: Tahun -->
+      <div class="info-card">
+        <div class="label">Tahun</div>
+        <div class="value" id="yearNum">—</div>
       </div>
     </div>
+
+    <!-- Kontrol Tema -->
+    <div class="controls">
+      <button class="theme-btn btn-blue active" onclick="setTheme('blue')" aria-label="Tema Biru"></button>
+      <button class="theme-btn btn-red" onclick="setTheme('red')" aria-label="Tema Merah"></button>
+      <button class="theme-btn btn-green" onclick="setTheme('green')" aria-label="Tema Hijau"></button>
+    </div>
+
+    <footer>Design with <span style="color:var(--primary)">♥</span> Riswan Jabar Store </footer>
   </main>
 
   <script>
-    /**
-     * DATA LOKALISASI
-     */
+    // --- DATA LOKALISASI ---
     const DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const MONTHS = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
 
-    /**
-     * ELEMEN DOM
-     */
+    // --- KONFIGURASI TEMA ---
+    const THEMES = {
+      blue: { primary: '#00f3ff', bg: '#050505' },
+      red:  { primary: '#ff2a6d', bg: '#1a0505' },
+      green:{ primary: '#05ffa1', bg: '#051a0a' }
+    };
+
+    let currentTheme = 'blue';
+
+    // --- ELEMEN DOM ---
     const canvas = document.getElementById('clockCanvas');
     const ctx = canvas.getContext('2d');
+    const bgCanvas = document.getElementById('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    
     const elDigitalTime = document.getElementById('digitalTime');
     const elDigitalSec = document.getElementById('digitalSec');
-    const elSecProgress = document.getElementById('secProgress');
     const elDayName = document.getElementById('dayName');
     const elDateNum = document.getElementById('dateNum');
     const elMonthName = document.getElementById('monthName');
+    const elYearNum = document.getElementById('yearNum'); // Elemen Baru
+    const root = document.documentElement;
 
-    /**
-     * LOGIKA UTAMA (Animation Loop)
-     * Menggunakan requestAnimationFrame untuk performa terbaik tanpa jeda.
-     */
-    function animate() {
-      const now = new Date();
+    // --- SISTEM PARTIKEL LATAR BELAKANG ---
+    let particles = [];
+    const particleCount = 60; 
+    let w, h;
+
+    function resizeBg() {
+      w = bgCanvas.width = window.innerWidth;
+      h = bgCanvas.height = window.innerHeight;
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 2;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > w) this.vx *= -1;
+        if (this.y < 0 || this.y > h) this.vy *= -1;
+      }
+      draw() {
+        bgCtx.fillStyle = getComputedStyle(root).getPropertyValue('--text-muted');
+        bgCtx.globalAlpha = 0.3;
+        bgCtx.beginPath();
+        bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animateParticles() {
+      bgCtx.clearRect(0, 0, w, h);
       
-      // Ambil komponen waktu
+      particles.forEach((p, index) => {
+        p.update();
+        p.draw();
+        
+        for (let j = index + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 150) {
+            bgCtx.strokeStyle = getComputedStyle(root).getPropertyValue('--primary');
+            bgCtx.globalAlpha = 1 - (dist / 150);
+            bgCtx.lineWidth = 0.5;
+            bgCtx.beginPath();
+            bgCtx.moveTo(p.x, p.y);
+            bgCtx.lineTo(p2.x, p2.y);
+            bgCtx.stroke();
+          }
+        }
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
+    // --- LOGIKA JAM ---
+    function updateClock() {
+      const now = new Date();
       const h = now.getHours();
       const m = now.getMinutes();
       const s = now.getSeconds();
       const ms = now.getMilliseconds();
 
-      // Hitung nilai pecahan untuk animasi halus (smooth sweep)
-      const smoothSec = s + (ms / 1000);
-      const smoothMin = m + (smoothSec / 60);
-      const smoothHour = h + (smoothMin / 60);
-
-      // Update DOM Digital
-      updateDigitalDisplay(h, m, s, ms);
-      
-      // Update Canvas Analog
-      drawAnalogClock(smoothHour, smoothMin, smoothSec);
-      
-      // Update Info Tanggal (hanya jika detik 0 untuk efisiensi, tapi di sini kita cek setiap frame aman saja)
-      // Agar aman, kita update tanggal saat inisialisasi dan detik ke-0
-      if (s === 0 && ms < 20) updateDateDisplay(now);
-
-      // Loop animasi
-      requestAnimationFrame(animate);
-    }
-
-    /**
-     * UPDATE TAMPILAN DIGITAL
-     */
-    function updateDigitalDisplay(h, m, s, ms) {
-      // Format Jam:Menit
+      // Update Digital
       const hh = String(h).padStart(2, '0');
       const mm = String(m).padStart(2, '0');
-      elDigitalTime.textContent = `${hh}:${mm}`;
-
-      // Format Detik
       const ss = String(s).padStart(2, '0');
+      
+      elDigitalTime.textContent = `${hh}:${mm}`;
       elDigitalSec.textContent = ss;
 
-      // Progress Bar (detik + milidetik)
-      const percentage = ((s * 1000 + ms) / 60000) * 100;
-      elSecProgress.style.width = `${percentage}%`;
+      // Update Tanggal (sekali saja saat detik 0)
+      if (s === 0 && ms < 50) {
+        elDayName.textContent = DAYS[now.getDay()];
+        elDateNum.textContent = String(now.getDate()).padStart(2, '0');
+        elMonthName.textContent = MONTHS[now.getMonth()];
+        elYearNum.textContent = now.getFullYear(); // Update Tahun
+      }
+
+      // Gambar Analog
+      drawAnalogClock(h, m, s, ms);
+
+      requestAnimationFrame(updateClock);
     }
 
-    /**
-     * UPDATE INFO TANGGAL
-     */
-    function updateDateDisplay(dateObj) {
-      elDayName.textContent = DAYS[dateObj.getDay()];
-      elDateNum.textContent = String(dateObj.getDate()).padStart(2, '0');
-      elMonthName.textContent = MONTHS[dateObj.getMonth()];
-    }
-
-    /**
-     * GAMBAR JAM ANALOG (CANVAS)
-     */
-    function drawAnalogClock(hour, minute, second) {
+    function drawAnalogClock(h, m, s, ms) {
       const width = canvas.width;
       const height = canvas.height;
       const cx = width / 2;
       const cy = height / 2;
-      const radius = (width / 2) - 40; // Margin dalam
+      const radius = (width / 2) - 40;
 
-      // Bersihkan Canvas
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Lingkaran Dasar (Dial)
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      // Gradien halus untuk memberikan kedalaman
-      const gradient = ctx.createRadialGradient(cx, cy, radius * 0.8, cx, cy, radius);
-      gradient.addColorStop(0, '#1a1a20');
-      gradient.addColorStop(1, '#0f0f12');
-      ctx.fillStyle = gradient;
-      ctx.fill();
-      
-      // Border luar jam
-      ctx.strokeStyle = 'rgba(255, 77, 77, 0.15)';
-      ctx.lineWidth = 4;
-      ctx.stroke();
+      const smoothSec = s + (ms / 1000);
+      const smoothMin = m + (smoothSec / 60);
+      const smoothHour = h + (smoothMin / 60);
 
-      // 2. Tanda Detik (Tick Marks)
       ctx.save();
       ctx.translate(cx, cy);
+      const primaryColor = getComputedStyle(root).getPropertyValue('--primary').trim();
+      
+      // Ticks
       for (let i = 0; i < 60; i++) {
         const angle = (i * Math.PI) / 30;
         const isHour = i % 5 === 0;
-        
         ctx.rotate(angle);
         ctx.beginPath();
-        ctx.moveTo(0, isHour ? -radius + 25 : -radius + 15);
-        ctx.lineTo(0, -radius + 10);
-        
-        ctx.strokeStyle = isHour ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = isHour ? 4 : 1;
+        ctx.moveTo(0, isHour ? -radius + 20 : -radius + 10);
+        ctx.lineTo(0, -radius + 5);
+        ctx.strokeStyle = isHour ? '#ffffff' : 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = isHour ? 3 : 1;
         ctx.stroke();
+        if(isHour) {
+           ctx.beginPath();
+           ctx.arc(0, -radius + 35, 2, 0, Math.PI*2);
+           ctx.fillStyle = primaryColor;
+           ctx.fill();
+        }
         ctx.rotate(-angle);
       }
       ctx.restore();
 
-      // 3. Angka Jam
-      ctx.font = 'bold 36px "Outfit", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      for (let num = 1; num <= 12; num++) {
-        const angle = (num * Math.PI) / 6 - Math.PI / 2;
-        const dist = radius - 65;
-        const x = cx + Math.cos(angle) * dist;
-        const y = cy + Math.sin(angle) * dist;
-        ctx.fillText(num.toString(), x, y);
-      }
+      // Hands
+      drawHand(cx, cy, (smoothHour % 12) * 30 * (Math.PI / 180) - Math.PI/2, radius * 0.5, 6, '#ffffff', false);
+      drawHand(cx, cy, smoothMin * 6 * (Math.PI / 180) - Math.PI/2, radius * 0.75, 4, '#cccccc', false);
 
-      // 4. Jarum Jam (Hour)
-      drawHand(
-        cx, cy, 
-        (hour % 12) * 30 * (Math.PI / 180) - Math.PI/2, 
-        radius * 0.5, 
-        8, 
-        '#ffffff'
-      );
-
-      // 5. Jarum Menit (Minute)
-      drawHand(
-        cx, cy, 
-        minute * 6 * (Math.PI / 180) - Math.PI/2, 
-        radius * 0.75, 
-        5, 
-        '#cccccc'
-      );
-
-      // 6. Jarum Detik (Second) - Merah dengan ekor
-      const secAngle = second * 6 * (Math.PI / 180) - Math.PI/2;
-      
-      // Gambar ekor jarum detik
+      // Second Hand
+      const secAngle = smoothSec * 6 * (Math.PI / 180) - Math.PI/2;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(secAngle);
+      ctx.shadowColor = primaryColor;
+      ctx.shadowBlur = 15;
       ctx.beginPath();
-      ctx.moveTo(0, 20); // Ekor ke belakang
-      ctx.lineTo(0, -radius * 0.85); // Ujung ke depan
-      ctx.strokeStyle = '#ff4d4d';
+      ctx.moveTo(0, 30);
+      ctx.lineTo(0, -radius * 0.85);
+      ctx.strokeStyle = primaryColor;
       ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.shadowColor = 'rgba(255, 77, 77, 0.6)';
-      ctx.shadowBlur = 10;
       ctx.stroke();
-      
-      // Lingkaran kecil di ujung jarum detik
       ctx.beginPath();
       ctx.arc(0, -radius * 0.85, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#ff4d4d';
+      ctx.fillStyle = '#fff';
       ctx.fill();
       ctx.restore();
 
-      // 7. Poros Tengah (Center Pin)
+      // Center
+      ctx.shadowBlur = 0;
       ctx.beginPath();
-      ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-      ctx.fillStyle = '#ff4d4d';
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
       ctx.fill();
-      
       ctx.beginPath();
-      ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#000';
+      ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = primaryColor;
       ctx.fill();
     }
 
-    /**
-     * FUNGSI HELPER GAMBAR JARUM
-     */
-    function drawHand(cx, cy, angleRad, length, width, color) {
+    function drawHand(cx, cy, angleRad, length, width, color, glow) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(angleRad);
-      
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(0, -length);
-      
       ctx.strokeStyle = color;
       ctx.lineWidth = width;
       ctx.lineCap = 'round';
-      // Shadow halus untuk jarum utama
-      if (width > 5) {
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetY = 4;
-      }
-      
       ctx.stroke();
       ctx.restore();
     }
 
-    // Jalankan animasi pertama kali
-    updateDateDisplay(new Date()); // Set tanggal awal
-    requestAnimationFrame(animate);
+    // --- FUNGSI GANTI TEMA ---
+    window.setTheme = function(themeName) {
+      if (!THEMES[themeName]) return;
+      currentTheme = themeName;
+      const theme = THEMES[themeName];
 
+      root.style.setProperty('--primary', theme.primary);
+      root.style.setProperty('--bg-color', theme.bg);
+
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.btn-${themeName}`).classList.add('active');
+    };
+
+    // --- INISIALISASI ---
+    window.addEventListener('resize', resizeBg);
+    resizeBg();
+    initParticles();
+    animateParticles();
+    
+    // Set tanggal awal
+    const now = new Date();
+    elDayName.textContent = DAYS[now.getDay()];
+    elDateNum.textContent = String(now.getDate()).padStart(2, '0');
+    elMonthName.textContent = MONTHS[now.getMonth()];
+    elYearNum.textContent = now.getFullYear(); // Set Tahun Awal
+
+    requestAnimationFrame(updateClock);
   </script>
 </body>
 </html>
